@@ -19,7 +19,7 @@ public class AuditorInventoryFlow {
     @RevisionNumber
     @SequenceGenerator(
             name= AUDIT_SCHEMA_GENERATOR,
-            sequenceName = "inventory_flow_auditor_seq",
+            sequenceName = "product_auditor_seq",
             schema = AUDIT_SCHEMA,
             allocationSize=1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
