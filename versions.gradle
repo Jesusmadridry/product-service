@@ -1,0 +1,64 @@
+import org.gradle.internal.jvm.Jvm
+
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
+def gitBranch() {
+    def branch = ""
+    def proc = "git rev-parse --abbrev-ref HEAD".execute()
+    proc.in.eachLine { line -> branch = line }
+    proc.err.eachLine { line -> println line }
+    proc.waitFor()
+    branch
+}
+
+println "Using Gradle version: $gradle.gradleVersion"
+println "Compiling with: "+ Jvm.current()
+
+ext {
+    jarNumber = '1.0'
+
+    workingBranch = project.hasProperty('src_branch')? project.property('src_branch'):  gitBranch()
+    releaseDate =  ZonedDateTime.now(ZoneId.of("America/New_York")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss"))
+
+    dependencyKey = "$projectKey$jarType"
+    jarVersion = "$jarNumber$dependencyKey"
+
+    //Dependencies numbers
+    springBootVersion = '3.2.1'
+    springDependencyManagementVersion = '1.1.4'
+    springOpenAPIVersion = '2.3.0'
+
+    productCommonVersion= '1.0.0-SNAPSHOT'
+
+    mapstructVersion = '1.5.5.Final'
+    lombokMapstructVersion = '0.2.0'
+    jsonwebtokenVersion = '0.11.2'
+    buckect4JVersion = '0.10.3'
+
+    //Testing
+    jUnitVersion = '4.12'
+    mockitoVersion = '4.12'
+    mockWebserverVersion = '4.9.0'
+    awailityVersion = '4.2.0'
+}
+
+println "Working BRANCH: ${workingBranch}"
+
+println "=========== Artifact's versions ====================="
+println "jarVersion = $jarVersion"
+
+println "=========== library's versions ====================="
+println "productCommonVersion = $productCommonVersion"
+
+println "=========== Third party library's versions ============="
+println "springBootVersion = $springBootVersion"
+println "springOpenAPIVersion = $springOpenAPIVersion"
+println "mapstructVersion = $mapstructVersion"
+println "buckect4JVersion = $buckect4JVersion"
+println "lombokMapstructVersion = $lombokMapstructVersion"
+println "mockitoVersion = $mockitoVersion"
+println "mockWebserverVersion = $mockWebserverVersion"
+
+

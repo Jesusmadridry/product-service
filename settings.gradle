@@ -1,0 +1,3 @@
+rootProject.name = 'inventory-flow-service'
+include 'inventory-app'
+include 'inventory-api'
