@@ -1,0 +1,41 @@
+application:
+  env: LOCAL
+
+inventory:
+  db-host: localhost
+  report:
+    cron: "0 0/2 * * * ?"
+  default-schema: company_inventory
+#  api:
+#    frequency:
+#      default-frequency:
+#        request-path: "^/.+$"
+#        limit: 10000
+#        period: 1h
+
+spring:
+  datasource:
+    username: postgres
+    password: postgres
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+management:
+  endpoints:
+    enabled-by-default: true
+    jmx:
+      exposure:
+        include: "*"
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    env:
+      show-values: always
+    configprops:
+      show-values: always
+    quartz:
+      show-values: always

@@ -1,0 +1,62 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+jar {
+    enabled = false
+}
+
+
+processResources {
+    filesMatching('**/application.yml') {
+        expand(project.properties)
+    }
+}
+
+
+bootJar {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    manifest {
+        attributes 'Implementation-Title': 'Inventory-Flow-App'
+        attributes 'Implementation-Version': jarVersion
+        attributes 'Implementation-Vendor-Id': appVendor
+    }
+}
+
+dependencies {
+    api project(':product-api')
+
+//    implementation "product-common-api:product-common-persist:${productCommonVersion}"
+
+    /************** PROD dependencies **************/
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'jakarta.validation:jakarta.validation-api'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.hibernate.orm:hibernate-envers'
+    implementation 'org.slf4j:jcl-over-slf4j'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    if (System.getProperty("os.arch") == "aarch64") {
+        runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.85.Final:osx-aarch_64'
+    }
+
+    /************** TEST dependencies **************/
+    testImplementation "com.squareup.okhttp3:mockwebserver:${mockWebserverVersion}"
+    testImplementation 'com.h2database:h2'
+
+    // https://mvnrepository.com/artifact/org.mockftpserver/MockFtpServer
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+    testImplementation "org.awaitility:awaitility:${awailityVersion}"
+}
+
+task versionTxt()  {
+    doLast {
+        new File(parent.projectDir, "version.txt").text = "$jarVersion"
+    }
+}
+
+tasks.named("build") { finalizedBy("versionTxt") }

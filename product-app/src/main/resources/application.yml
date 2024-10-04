@@ -1,0 +1,74 @@
+application:
+  name: product-service
+  env: DEFAULT
+
+logging:
+  level:
+    org:
+      hibernate: ERROR
+
+server:
+  port: 8092
+  error:
+    include-message: always
+  shutdown: graceful
+
+management:
+  server:
+    port: 8093
+  endpoints:
+    web:
+      base-path: /product-service-mgmt
+
+spring:
+  cloud:
+    stream:
+      output-bindings: report_output
+      default-binder: rabbit
+      bindings:
+        report_output:
+          destination: \${inventory.report.subscriber-topic}
+          content-type: "application/json"
+      rabbit:
+        bindings:
+          report_output:
+            producer:
+#              auto-bind-dlq: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: mch_admin
+    password: rabbitmqPWD
+
+  datasource:
+    url: jdbc:postgresql://\${inventory.db-host}:5432/db_data?currentSchema=\${inventory.default-schema}&stringtype=unspecified
+    driver-class-name: org.postgresql.Driver
+    hikari.maximum-pool-size: 1
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _audit
+            revision_field_name: revision_number
+            revision_type_field_name: revision_reason
+            default_schema: audit_product
+  jackson:
+    deserialization:
+      adjust-dates-to-context-time-zone: true
+    mapper:
+      accept-case-insensitive-enums: true
+    serialization:
+      write-dates-as-timestamps: false
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
