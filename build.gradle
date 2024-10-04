@@ -14,6 +14,14 @@ allprojects {
 	repositories {
 		mavenLocal()
 		mavenCentral()
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/jesusmadridry/product-common")
+			credentials {
+				username = project.findProperty("gpr_user_git")
+				password = project.findProperty("gpr_key_git")
+			}
+		}
 	}
 }
 
