@@ -12,9 +12,9 @@ import static com.product.persist.model.Constant.AUDIT_SCHEMA_GENERATOR;
 
 @Data
 @Entity
-@RevisionEntity(AuditorInventoryFlowListener.class)
+@RevisionEntity(AuditorProductListener.class)
 @Table(schema = AUDIT_SCHEMA)
-public class AuditorInventoryFlow {
+public class AuditorProduct {
     @Id
     @RevisionNumber
     @SequenceGenerator(

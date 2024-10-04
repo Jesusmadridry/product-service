@@ -5,7 +5,7 @@ import org.hibernate.envers.EntityTrackingRevisionListener;
 import org.hibernate.envers.RevisionType;
 
 @Slf4j
-public class AuditorInventoryFlowListener implements EntityTrackingRevisionListener  {
+public class AuditorProductListener implements EntityTrackingRevisionListener  {
     @Override
     public void newRevision(Object revisionEntity) {
         //There is nothing to customize here
@@ -15,7 +15,7 @@ public class AuditorInventoryFlowListener implements EntityTrackingRevisionListe
     public void entityChanged(Class entityClass, String entityName, Object entityId, RevisionType revisionType, Object revisionEntity) {
         log.debug("Tracking {} change for entity {}", revisionType, entityName);
 
-        if (revisionEntity instanceof AuditorInventoryFlow auditorInventoryFlow) {
+        if (revisionEntity instanceof AuditorProduct auditorInventoryFlow) {
             auditorInventoryFlow.addAuditedEntities(entityClass.getSimpleName(), revisionType);
         }
     }
