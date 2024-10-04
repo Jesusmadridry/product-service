@@ -1,10 +1,13 @@
 package com.product.persist;
 
+import com.common.persist.CommonEntity;
 import com.product.persist.common.Category;
-import com.product.persist.common.CommonEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.UUID;
 
 @Entity
 @EqualsAndHashCode(callSuper=false)
@@ -14,10 +17,14 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "product", schema = "company_inventory")
+@Slf4j
 public class ProductEntity extends CommonEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
+    private UUID externalRef;
 
     @Column(nullable = false, unique = true)
     private String code;
@@ -29,4 +36,12 @@ public class ProductEntity extends CommonEntity {
     private Double price;
     private String measurement;
     private String companyOwner;
+
+    @PrePersist
+    public  void presetValues() {
+        if (externalRef == null) {
+            externalRef = UUID.randomUUID();
+            log.debug("Preparing {} to create {}", externalRef, code);
+        }
+    }
 }
