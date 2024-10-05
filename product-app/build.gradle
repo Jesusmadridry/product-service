@@ -27,6 +27,7 @@ dependencies {
     api project(':product-api')
 
     implementation "product-common-api:product-common-persist:${productCommonVersion}"
+    implementation "product-common-api:product-common-exception:${productCommonVersion}"
 
     /************** PROD dependencies **************/
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

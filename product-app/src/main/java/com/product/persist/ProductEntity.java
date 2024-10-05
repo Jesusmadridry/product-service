@@ -30,9 +30,10 @@ public class ProductEntity extends CommonEntity {
     private String code;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="product_type_id")
+    @JoinColumn(name="category_type_id")
     private Category categoryType;
     private String name;
+    private String description;
     private Double price;
     private String measurement;
     private String companyOwner;
