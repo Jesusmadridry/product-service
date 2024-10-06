@@ -4,10 +4,8 @@ import com.product.model.ProductResponse;
 import com.product.model.ProductView;
 import com.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -16,9 +14,13 @@ import reactor.core.publisher.Mono;
 public class ProductController {
     private final ProductService productService;
 
-
     @PostMapping
-    public Mono<ProductResponse> registerNewProduct(@RequestBody  ProductView productView){
+    public Mono<ProductResponse> registerNewProduct(@Validated @RequestBody  ProductView productView){
         return productService.registerNewProduct(productView);
+    }
+
+    @PutMapping
+    public Mono<ProductResponse> updateProduct(@Validated @RequestBody  ProductView productView){
+        return productService.modifyProduct(productView);
     }
 }

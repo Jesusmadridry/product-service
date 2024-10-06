@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,6 +28,14 @@ public abstract class ProductMapper {
     @Mapping(target = "categoryType", expression = "java(lookupCategory(productView.getCategoryType()))")
     public abstract ProductEntity fromProductView(ProductView productView);
 
+
+    @Mapping(target = "externalRef", ignore = true)
+    @Mapping(target = "createdDateTs", ignore = true)
+    @Mapping(target = "modifiedDateTs", ignore = true)
+    @Mapping(target = "createdByUser", ignore = true)
+    @Mapping(target = "modifiedByUser", ignore = true)
+    @Mapping(target = "categoryType", expression = "java(lookupCategory(productView.getCategoryType()))")
+    public abstract ProductEntity mergeFromEntity(@MappingTarget ProductEntity productEntity, ProductView productView);
 
     Category lookupCategory(int categoryType) {
         if(categoryType>0) {
