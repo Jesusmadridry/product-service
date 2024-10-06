@@ -36,7 +36,7 @@ public class ProductService {
                                 return new OperationResult(productCreated.getExternalRef(), NEW_PRODUCT_MESSAGE);
                             });
                 return Mono.just(ProductResponse.builder()
-                                    .internalProductId(productProcess.externalRef())
+                                    .externalRef(productProcess.externalRef())
                                     .message(productProcess.message)
                                     .build());
                 } catch (Exception ex) {
@@ -54,7 +54,7 @@ public class ProductService {
                         var updateProduct = productMapper.fromProductView(productView);
                         var productEntityUpdated = productRepository.save(updateProduct);
                         return Mono.just(ProductResponse.builder()
-                                    .internalProductId(productEntityUpdated.getExternalRef())
+                                    .externalRef(productEntityUpdated.getExternalRef())
                                     .message(PRODUCT_UPDATE_MESSAGE)
                                     .build());
                     })
@@ -66,8 +66,24 @@ public class ProductService {
         return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, MANDATORY_FIELD));
     }
 
-    public Mono<ProductResponse> deleteProduct(UUID internalProductId){
-        return Mono.empty();
+    public Mono<ProductResponse> deleteProduct(UUID externalRef){
+        if(!ObjectUtils.isEmpty(externalRef)){
+            try {
+                productRepository.findByExternalRef(externalRef)
+                        .map(productEntity -> {
+                            var externalRefDB = productEntity.getExternalRef();
+                            productRepository.deleteById(productEntity.getId());
+                            return Mono.just(ProductResponse.builder()
+                                    .externalRef(externalRefDB)
+                                    .message(PRODUCT_DELETE_MESSAGE)
+                                    .build());
+                        })
+                        .orElseThrow(() -> new ProductServiceException(HttpStatus.BAD_REQUEST, 500, PRODUCT_NOT_FOUND_MESSAGE));
+            } catch (Exception ex) {
+                return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
+            }
+        }
+        return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, MANDATORY_FIELD));
     }
 
     private record OperationResult(UUID externalRef, String message){}

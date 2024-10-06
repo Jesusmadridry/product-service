@@ -13,4 +13,5 @@ public final class Constant {
     public static final String NEW_PRODUCT_MESSAGE = "This product was created successfully";
     public static final String PRODUCT_UPDATE_MESSAGE = "This product was successfully updated";
     public static final String PRODUCT_NOT_FOUND_MESSAGE = "This product was not found";
+    public static final String PRODUCT_DELETE_MESSAGE = "This product was successfully deleted";
 }
