@@ -9,6 +9,6 @@ import java.util.UUID;
 @Builder
 public class ProductResponse {
     private String id;
-    private UUID internalProductId;
+    private UUID externalRef;
     private String message;
 }
