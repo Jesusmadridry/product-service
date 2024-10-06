@@ -14,17 +14,11 @@ spring:
     init:
       continue-on-error: true
   datasource:
-    url: jdbc:h2:mem:company_inventory;INIT=CREATE SCHEMA IF NOT EXISTS MCH_PROPERTY;
+    url: jdbc:h2:mem:company_inventory;INIT=CREATE SCHEMA IF NOT EXISTS COMPANY_INVENTORY;
     driver-class-name: org.h2.Driver
     username: sa
     password: password
     embedded-database-connection: h2
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          #To match the JWT Claim "iss"
-          issuer-uri: "http://localhost:7595"
 
   jpa:
     show-sql: true
