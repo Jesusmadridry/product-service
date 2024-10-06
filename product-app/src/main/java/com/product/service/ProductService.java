@@ -19,7 +19,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
-
     /**
      * This method must receive a Product View Object, and it will create the record inside the table.
      * @param productView
@@ -30,17 +29,16 @@ public class ProductService {
             try {
                 var productProcess =
                         productRepository.findByCode(productView.getCode())
-                            .map(productEntity -> new OperationResult(productEntity.getExternalRef(), EXISTING_PRODUCT))
+                            .map(productEntity -> new OperationResult(productEntity.getExternalRef(), EXISTING_PRODUCT_MESSAGE))
                             .orElseGet(() -> {
                                 var newProduct = productMapper.fromProductView(productView);
                                 var productCreated = productRepository.save(newProduct);
-                                return new OperationResult(productCreated.getExternalRef(), NEW_PRODUCT);
+                                return new OperationResult(productCreated.getExternalRef(), NEW_PRODUCT_MESSAGE);
                             });
                 return Mono.just(ProductResponse.builder()
                                     .internalProductId(productProcess.externalRef())
                                     .message(productProcess.message)
                                     .build());
-
                 } catch (Exception ex) {
                    return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
                 }
@@ -50,7 +48,20 @@ public class ProductService {
 
     public Mono<ProductResponse> modifyProduct(ProductView productView){
         if(!ObjectUtils.isEmpty(productView)){
-
+            try {
+                productRepository.findByCode(productView.getCode())
+                    .map(productEntity -> {
+                        var updateProduct = productMapper.fromProductView(productView);
+                        var productEntityUpdated = productRepository.save(updateProduct);
+                        return Mono.just(ProductResponse.builder()
+                                    .internalProductId(productEntityUpdated.getExternalRef())
+                                    .message(PRODUCT_UPDATE_MESSAGE)
+                                    .build());
+                    })
+                    .orElseThrow(() -> new ProductServiceException(HttpStatus.BAD_REQUEST, 500, PRODUCT_NOT_FOUND_MESSAGE));
+            } catch (Exception ex) {
+                return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
+            }
         }
         return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, MANDATORY_FIELD));
     }
