@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("product")
 @RequiredArgsConstructor
@@ -22,5 +24,10 @@ public class ProductController {
     @PutMapping
     public Mono<ProductResponse> updateProduct(@Valid @RequestBody  ProductView productView){
         return productService.modifyProduct(productView);
+    }
+
+    @DeleteMapping("/{externalRef}")
+    public Mono<ProductResponse> deleteProduct(@PathVariable(name="externalRef") UUID externalRef){
+        return productService.deleteProduct(externalRef);
     }
 }
