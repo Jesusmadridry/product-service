@@ -40,7 +40,6 @@ public class ProductService {
                                     .internalProductId(productProcess.externalRef())
                                     .message(productProcess.message)
                                     .build());
-
                 } catch (Exception ex) {
                    return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
                 }
