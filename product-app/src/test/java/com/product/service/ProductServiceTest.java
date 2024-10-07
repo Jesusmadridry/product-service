@@ -20,11 +20,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+
+/**
+ * 1a. success_Product_Create -> it must receive a product view, convert into product entity, and be saved successfully
+ * 1b. trying_to_create_alreadyExistingProduct -> this case will catch the code received is already associated in the product table
+ * 1c. failed_createProcess_dueTo_NullPayload -> The service will throw an error, because it can deal with null payloads.
+ *
+ * 2a. success_Product_Update -> it must receive a product view, convert into product entity, and update already existing product
+ */
 @Slf4j
 class ProductServiceTest extends BaseIntegration {
+    private static final String UPDATE_NAME = "Laptop Top";
+    private static final String UPDATE_DESCRIPTION = "Laptop Top Amazing";
 
+    // 1a
     @Test
-    void successProduct_Create() throws InterruptedException {
+    void success_Product_Create() throws InterruptedException {
         // GIVEN
         prepareCategoryRecords();
         CountDownLatch countDownLatch =  new CountDownLatch(1);
@@ -47,6 +58,7 @@ class ProductServiceTest extends BaseIntegration {
         log.info("Product Created {}", productCreated);
     }
 
+    // 1b
     @Test
     void trying_to_create_alreadyExistingProduct() throws InterruptedException {
         // GIVEN
@@ -70,6 +82,7 @@ class ProductServiceTest extends BaseIntegration {
         verify(productRepository, times(0)).save(any(ProductEntity.class));
     }
 
+    // 1c
     @Test
     void failed_createProcess_dueTo_NullPayload() throws InterruptedException {
         // GIVEN
@@ -81,7 +94,6 @@ class ProductServiceTest extends BaseIntegration {
             .doOnTerminate(countDownLatch::countDown)
             .doOnError(errorResponse -> productResponseCapturer.set(errorResponse.getMessage()))
             .subscribe();
-
         countDownLatch.await(3, TimeUnit.SECONDS);
 
         // THEN
@@ -89,6 +101,36 @@ class ProductServiceTest extends BaseIntegration {
         verify(productRepository, times(0)).save(any(ProductEntity.class));
     }
 
+    // 2a
+    @Test
+    void success_Product_Update() throws InterruptedException {
+        // GIVEN
+        CountDownLatch countDownLatch =  new CountDownLatch(1);
+        prepareCategoryRecords();
+        var createProperty = prepareProductEntity();
+        var productView = ProductView. builder()
+                .name(UPDATE_NAME)
+                .categoryType(1)
+                .code("AAB")
+                .companyOwner("ABC Company Records")
+                .description(UPDATE_DESCRIPTION)
+                .build();
+        // THEN
+        productService.modifyProduct(productView)
+            .doOnTerminate(countDownLatch::countDown)
+            .subscribe();
+        countDownLatch.await(3, TimeUnit.SECONDS);
+
+        // THEN
+        var productUpdated = productRepository.findByCode(productView.getCode());
+        assertTrue(productUpdated.isPresent());
+        var productEntity  = productUpdated.get();
+        assertEquals(UPDATE_NAME, productEntity.getName());
+        assertEquals(UPDATE_DESCRIPTION, productEntity.getDescription());
+        assertTrue(createProperty.getModifiedDateTs().isBefore(productEntity.getModifiedDateTs()));
+    }
+
+    // Saving categories
     private void prepareCategoryRecords(){
         var newCategories =
                 List.of(Category.builder()
@@ -99,7 +141,6 @@ class ProductServiceTest extends BaseIntegration {
                             .build());
         categoryRepository.saveAll(newCategories);
     }
-
     private ProductView prepareProductView(){
         return ProductView. builder()
                 .name("Laptop")
@@ -109,7 +150,7 @@ class ProductServiceTest extends BaseIntegration {
                 .description("Laptop 1234f Amazing")
                 .build();
     }
-
+    // Saving product for cases which must have this before running the asserts
     private ProductEntity prepareProductEntity(){
         var productView = prepareProductView();
         var productEntity = productMapper.fromProductView(productView);

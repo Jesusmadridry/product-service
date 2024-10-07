@@ -31,10 +31,7 @@ public class ProductService {
             try {
                 var productProcess =
                         productRepository.findByCode(productView.getCode())
-                            .map(productEntity -> {
-                                log.info("Existing Product");
-                                return new OperationResult(productEntity.getExternalRef(), EXISTING_PRODUCT_MESSAGE);
-                            })
+                            .map(productEntity -> new OperationResult(productEntity.getExternalRef(), EXISTING_PRODUCT_MESSAGE))
                             .orElseGet(() -> {
                                 var newProduct = productMapper.fromProductView(productView);
                                 var productCreated = productRepository.save(newProduct);
@@ -57,7 +54,7 @@ public class ProductService {
                 return
                     productRepository.findByCode(productView.getCode())
                         .map(productEntity -> {
-                            var updateProduct = productMapper.fromProductView(productView);
+                            var updateProduct = productMapper.mergeFromEntity(productEntity, productView);
                             var productEntityUpdated = productRepository.save(updateProduct);
                             return Mono.just(ProductResponse.builder()
                                         .id(productEntityUpdated.getExternalRef())
