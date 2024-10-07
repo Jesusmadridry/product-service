@@ -42,7 +42,6 @@ class ProductServiceTest extends BaseIntegration {
     @Test
     void success_Product_Create() throws InterruptedException {
         // GIVEN
-        prepareCategoryRecords();
         CountDownLatch countDownLatch =  new CountDownLatch(1);
         var productView = prepareProductView(null,DEFAULT_NAME,DEFAULT_COMPANY_OWNER,DEFAULT_DESCRIPTION);
 
@@ -67,7 +66,6 @@ class ProductServiceTest extends BaseIntegration {
     @Test
     void trying_to_create_alreadyExistingProduct() throws InterruptedException {
         // GIVEN
-        prepareCategoryRecords();
         var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
         var propertyCreated = prepareProductEntity(simulatingOldRecord);
         reset(productRepository); // Cleaning the repository to avoid false positive inside the register new product method
@@ -111,7 +109,6 @@ class ProductServiceTest extends BaseIntegration {
     @Test
     void success_Product_Update() throws InterruptedException {
         // GIVEN
-        prepareCategoryRecords();
         CountDownLatch countDownLatch =  new CountDownLatch(1);
         var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
         var createProperty = prepareProductEntity(simulatingOldRecord);
@@ -144,7 +141,6 @@ class ProductServiceTest extends BaseIntegration {
     void failureWhile_itWasTried_ToUpdate_NonExistingProduct() throws InterruptedException {
         // GIVEN
         CountDownLatch countDownLatch =  new CountDownLatch(1);
-
         var productResponseCapturer = new AtomicReference<Throwable>();
         var productView = ProductView. builder()
                 .id(UUID.randomUUID())
@@ -170,7 +166,6 @@ class ProductServiceTest extends BaseIntegration {
     @Test
     void success_Product_Delete() throws InterruptedException {
         // GIVEN
-        prepareCategoryRecords();
         var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
         var product = prepareProductEntity(simulatingOldRecord);
         var countDownLatch =  new CountDownLatch(1);
@@ -188,17 +183,6 @@ class ProductServiceTest extends BaseIntegration {
         assertEquals(PRODUCT_DELETE_MESSAGE, productResponseCapturer.get().getMessage());
     }
 
-    // Saving categories
-    private void prepareCategoryRecords(){
-        var newCategories =
-                List.of(Category.builder()
-                            .name("Electronics")
-                            .build(),
-                        Category.builder()
-                            .name("Clothing")
-                            .build());
-        categoryRepository.saveAll(newCategories);
-    }
     private ProductView prepareProductView(UUID externalRef, String name, String companyOwner, String description){
         var categoryList = categoryRepository.findAll();
         return ProductView. builder()
