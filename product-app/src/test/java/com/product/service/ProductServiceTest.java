@@ -2,7 +2,6 @@ package com.product.service;
 
 import com.product.BaseIntegration;
 import com.product.model.ProductResponse;
-import com.product.model.ProductServiceException;
 import com.product.model.ProductView;
 import com.product.persist.ProductEntity;
 import com.product.persist.common.Category;
@@ -14,8 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.product.persist.model.Constant.EXISTING_PRODUCT_MESSAGE;
-import static com.product.persist.model.Constant.MANDATORY_FIELD;
+import static com.product.persist.model.Constant.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,6 +25,7 @@ import static org.mockito.Mockito.*;
  * 1c. failed_createProcess_dueTo_NullPayload -> The service will throw an error, because it can deal with null payloads.
  *
  * 2a. success_Product_Update -> it must receive a product view, convert into product entity, and update already existing product
+ * 2b. failureWhile_itWasTried_ToUpdate_NonExistingProduct -> this case will catch when there was tried to update a non-existing product in the table
  */
 @Slf4j
 class ProductServiceTest extends BaseIntegration {
@@ -128,6 +127,32 @@ class ProductServiceTest extends BaseIntegration {
         assertEquals(UPDATE_NAME, productEntity.getName());
         assertEquals(UPDATE_DESCRIPTION, productEntity.getDescription());
         assertTrue(createProperty.getModifiedDateTs().isBefore(productEntity.getModifiedDateTs()));
+    }
+
+    // 2b
+    @Test
+    void failureWhile_itWasTried_ToUpdate_NonExistingProduct() throws InterruptedException {
+        // GIVEN
+        CountDownLatch countDownLatch =  new CountDownLatch(1);
+
+        var productResponseCapturer = new AtomicReference<Throwable>();
+        var productView = ProductView. builder()
+                .name(UPDATE_NAME)
+                .categoryType(1)
+                .code("AAB")
+                .companyOwner("ABC Company Records")
+                .description(UPDATE_DESCRIPTION)
+                .build();
+        // THEN
+        productService.modifyProduct(productView)
+                .doOnTerminate(countDownLatch::countDown)
+                .doOnError(productResponseCapturer::set)
+                .subscribe();
+        countDownLatch.await(3, TimeUnit.SECONDS);
+
+        // THEN
+        assertNotNull(productResponseCapturer.get());
+        assertEquals(PRODUCT_NOT_FOUND_MESSAGE, productResponseCapturer.get().getMessage());
     }
 
     // Saving categories
