@@ -42,6 +42,7 @@ public class ProductService {
                                     .message(productProcess.message)
                                     .build());
                 } catch (Exception ex) {
+                   log.error(ex.getMessage(), ex);
                    return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
                 }
         }
@@ -52,7 +53,7 @@ public class ProductService {
         if(!ObjectUtils.isEmpty(productView)){
             try {
                 return
-                    productRepository.findByCode(productView.getCode())
+                    productRepository.findByExternalRef(productView.getId())
                         .map(productEntity -> {
                             var updateProduct = productMapper.mergeFromEntity(productEntity, productView);
                             var productEntityUpdated = productRepository.save(updateProduct);
@@ -63,6 +64,7 @@ public class ProductService {
                         })
                         .orElseGet(() -> Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, PRODUCT_NOT_FOUND_MESSAGE)));
             } catch (Exception ex) {
+                log.error(ex.getMessage(), ex);
                 return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
             }
         }
@@ -84,6 +86,7 @@ public class ProductService {
                             })
                             .orElseGet(() -> Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, PRODUCT_NOT_FOUND_MESSAGE)));
             } catch (Exception ex) {
+                log.error(ex.getMessage(), ex);
                 return Mono.error(new ProductServiceException(HttpStatus.BAD_REQUEST, 500, ERROR_MESSAGE_SERVICE, ex));
             }
         }
