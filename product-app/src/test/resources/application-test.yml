@@ -1,5 +1,11 @@
 application:
   title: Product Service >>> Integration Testing Profile
+  security:
+    users:
+      - name: test_user
+        password: test_user
+        roles:
+          - COMPANY_OWNER
 
 logging:
   level:
@@ -12,6 +18,7 @@ spring:
   sql:
     init:
       continue-on-error: true
+      mode: always
   datasource:
     url: jdbc:h2:mem:company_inventory;INIT=CREATE SCHEMA IF NOT EXISTS COMPANY_INVENTORY;
     driver-class-name: org.h2.Driver
