@@ -23,9 +23,9 @@ import static org.mockito.Mockito.*;
  * 1a. success_Product_Create -> it must receive a product view, convert into product entity, and be saved successfully
  * 1b. trying_to_create_alreadyExistingProduct -> this case will catch the code received is already associated in the product table
  * 1c. failed_createProcess_dueTo_NullPayload -> The service will throw an error, because it can deal with null payloads.
- *
  * 2a. success_Product_Update -> it must receive a product view, convert into product entity, and update already existing product
  * 2b. failureWhile_itWasTried_ToUpdate_NonExistingProduct -> this case will catch when there was tried to update a non-existing product in the table
+ * 3a. success_Product_Delete
  */
 @Slf4j
 class ProductServiceTest extends BaseIntegration {
@@ -153,6 +153,27 @@ class ProductServiceTest extends BaseIntegration {
         // THEN
         assertNotNull(productResponseCapturer.get());
         assertEquals(PRODUCT_NOT_FOUND_MESSAGE, productResponseCapturer.get().getMessage());
+    }
+
+    // 3c
+    @Test
+    void success_Product_Delete() throws InterruptedException {
+        // GIVEN
+        prepareCategoryRecords();
+        var product = prepareProductEntity();
+        var countDownLatch =  new CountDownLatch(1);
+        var productResponseCapturer = new AtomicReference<ProductResponse>();
+
+        // WHEN
+        productService.deleteProduct(product.getExternalRef())
+            .doOnTerminate(countDownLatch::countDown)
+            .subscribe(productResponseCapturer::set);
+        countDownLatch.await(3, TimeUnit.SECONDS);
+
+        // THEN
+        var productEntity = productRepository.findByCode(product.getCode());
+        assertFalse(productEntity.isPresent());
+        assertEquals(PRODUCT_DELETE_MESSAGE, productResponseCapturer.get().getMessage());
     }
 
     // Saving categories
