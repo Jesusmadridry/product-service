@@ -1,7 +1,16 @@
 application:
   name: product-service
   env: DEFAULT
-
+  security:
+    users:
+      - name: testing_user
+        password: testing_user1
+        roles:
+          - COMPANY_OWNER
+      - name: admin
+        password: admin
+        roles:
+          - ADMIN
 logging:
   level:
     org:
