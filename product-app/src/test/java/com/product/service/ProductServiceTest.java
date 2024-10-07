@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -31,6 +33,10 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest extends BaseIntegration {
     private static final String UPDATE_NAME = "Laptop Top";
     private static final String UPDATE_DESCRIPTION = "Laptop Top Amazing";
+    private static final String DEFAULT_DESCRIPTION = "Amazing product";
+    private static final String DEFAULT_COMPANY_OWNER= "ABD Company Records";
+    private static final String DEFAULT_NAME = "ABCCODE";
+
 
     // 1a
     @Test
@@ -38,7 +44,7 @@ class ProductServiceTest extends BaseIntegration {
         // GIVEN
         prepareCategoryRecords();
         CountDownLatch countDownLatch =  new CountDownLatch(1);
-        var productView = prepareProductView();
+        var productView = prepareProductView(null,DEFAULT_NAME,DEFAULT_COMPANY_OWNER,DEFAULT_DESCRIPTION);
 
         // WHEN
         productService.registerNewProduct(productView)
@@ -52,7 +58,7 @@ class ProductServiceTest extends BaseIntegration {
         assertNotNull(productCreated);
         assertEquals("AAB", productCreated.getCode());
         assertNotNull(productCreated.getExternalRef());
-        assertEquals("ABC Company Records", productCreated.getCompanyOwner());
+        assertEquals(DEFAULT_COMPANY_OWNER, productCreated.getCompanyOwner());
         verify(productRepository, times(1)).save(any(ProductEntity.class));
         log.info("Product Created {}", productCreated);
     }
@@ -62,11 +68,12 @@ class ProductServiceTest extends BaseIntegration {
     void trying_to_create_alreadyExistingProduct() throws InterruptedException {
         // GIVEN
         prepareCategoryRecords();
-        var propertyCreated = prepareProductEntity();
+        var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
+        var propertyCreated = prepareProductEntity(simulatingOldRecord);
         reset(productRepository); // Cleaning the repository to avoid false positive inside the register new product method
         CountDownLatch countDownLatch =  new CountDownLatch(1);
         var productResponseCapturer = new AtomicReference<ProductResponse>();
-        var productView = prepareProductView();
+        var productView = prepareProductView(propertyCreated.getExternalRef(), DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
 
         // WHEN
         productService.registerNewProduct(productView)
@@ -104,12 +111,15 @@ class ProductServiceTest extends BaseIntegration {
     @Test
     void success_Product_Update() throws InterruptedException {
         // GIVEN
-        CountDownLatch countDownLatch =  new CountDownLatch(1);
         prepareCategoryRecords();
-        var createProperty = prepareProductEntity();
+        CountDownLatch countDownLatch =  new CountDownLatch(1);
+        var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
+        var createProperty = prepareProductEntity(simulatingOldRecord);
+        var categoryDB = categoryRepository.findAll().get(0);
         var productView = ProductView. builder()
+                .id(createProperty.getExternalRef())
                 .name(UPDATE_NAME)
-                .categoryType(1)
+                .categoryType(categoryDB.getId())
                 .code("AAB")
                 .companyOwner("ABC Company Records")
                 .description(UPDATE_DESCRIPTION)
@@ -137,8 +147,9 @@ class ProductServiceTest extends BaseIntegration {
 
         var productResponseCapturer = new AtomicReference<Throwable>();
         var productView = ProductView. builder()
+                .id(UUID.randomUUID())
                 .name(UPDATE_NAME)
-                .categoryType(1)
+                .categoryType(1L)
                 .code("AAB")
                 .companyOwner("ABC Company Records")
                 .description(UPDATE_DESCRIPTION)
@@ -160,7 +171,8 @@ class ProductServiceTest extends BaseIntegration {
     void success_Product_Delete() throws InterruptedException {
         // GIVEN
         prepareCategoryRecords();
-        var product = prepareProductEntity();
+        var simulatingOldRecord = prepareProductView(null, DEFAULT_NAME, DEFAULT_COMPANY_OWNER, DEFAULT_DESCRIPTION);
+        var product = prepareProductEntity(simulatingOldRecord);
         var countDownLatch =  new CountDownLatch(1);
         var productResponseCapturer = new AtomicReference<ProductResponse>();
 
@@ -187,18 +199,19 @@ class ProductServiceTest extends BaseIntegration {
                             .build());
         categoryRepository.saveAll(newCategories);
     }
-    private ProductView prepareProductView(){
+    private ProductView prepareProductView(UUID externalRef, String name, String companyOwner, String description){
+        var categoryList = categoryRepository.findAll();
         return ProductView. builder()
-                .name("Laptop")
-                .categoryType(1)
+                .id(externalRef)
+                .name(name)
+                .categoryType(categoryList.get(0).getId())
                 .code("AAB")
-                .companyOwner("ABC Company Records")
-                .description("Laptop 1234f Amazing")
+                .companyOwner(companyOwner)
+                .description(description)
                 .build();
     }
     // Saving product for cases which must have this before running the asserts
-    private ProductEntity prepareProductEntity(){
-        var productView = prepareProductView();
+    private ProductEntity prepareProductEntity(ProductView productView){
         var productEntity = productMapper.fromProductView(productView);
         return productRepository.save(productEntity);
     }

@@ -28,7 +28,7 @@ public abstract class ProductMapper {
     @Mapping(target = "categoryType", expression = "java(lookupCategory(productView.getCategoryType()))")
     public abstract ProductEntity fromProductView(ProductView productView);
 
-
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "externalRef", ignore = true)
     @Mapping(target = "createdDateTs", ignore = true)
     @Mapping(target = "modifiedDateTs", ignore = true)
@@ -37,7 +37,7 @@ public abstract class ProductMapper {
     @Mapping(target = "categoryType", expression = "java(lookupCategory(productView.getCategoryType()))")
     public abstract ProductEntity mergeFromEntity(@MappingTarget ProductEntity productEntity, ProductView productView);
 
-    Category lookupCategory(int categoryType) {
+    Category lookupCategory(Long categoryType) {
         if(categoryType>0) {
             var categoryRef =  new AtomicReference<Category>();
             categoryRepository.findById((long) categoryType)

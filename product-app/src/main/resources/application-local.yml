@@ -1,6 +1,5 @@
 application:
   env: LOCAL
-
 inventory:
   db-host: localhost
   report:
