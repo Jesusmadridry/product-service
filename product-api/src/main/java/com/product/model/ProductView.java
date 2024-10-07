@@ -2,11 +2,11 @@ package com.product.model;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
 @Data
-@Validated
+@Builder
 public class ProductView {
     @NotEmpty
     private String code;
