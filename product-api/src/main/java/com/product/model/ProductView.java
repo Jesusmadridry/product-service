@@ -1,25 +1,33 @@
 package com.product.model;
 
+import com.product.model.validation.RegisterInfo;
+import com.product.model.validation.UpdateInfo;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Builder
 public class ProductView {
-    @NotEmpty
+    @NotEmpty(groups = UpdateInfo.class)
+    private UUID id;
+    @NotEmpty(groups = {RegisterInfo.class, UpdateInfo.class})
     private String code;
 
-    @Min(0)
-    private int categoryType;
+    @Min(groups = {RegisterInfo.class, UpdateInfo.class}, value = 1)
+    private Long categoryType;
 
-    @NotEmpty
+    @NotEmpty(groups = {RegisterInfo.class, UpdateInfo.class})
     private String name;
     private String description;
 
-    @Min(0)
+    @Min(groups = {RegisterInfo.class, UpdateInfo.class}, value = 1)
     private Double price;
     private String measurement;
+
+    @NotEmpty(groups = {RegisterInfo.class, UpdateInfo.class})
     private String companyOwner;
 }
