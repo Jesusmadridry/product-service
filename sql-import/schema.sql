@@ -1,0 +1,3 @@
+CREATE SCHEMA IF NOT EXISTS audit_product;
+CREATE SCHEMA IF NOT EXISTS audit_generator;
+CREATE SCHEMA IF NOT EXISTS category_inventory;
