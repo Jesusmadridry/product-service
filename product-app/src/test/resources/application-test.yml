@@ -3,8 +3,7 @@ application:
 
 logging:
   level:
-    com.mch: DEBUG
-    mch.property: DEBUG
+    com.product: DEBUG
     reactor.netty.http: DEBUG
     io.netty.resolver.dns: DEBUG
     org.springframework.security: TRACE
