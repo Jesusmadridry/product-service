@@ -8,7 +8,6 @@ import java.util.UUID;
 @Data
 @Builder
 public class ProductResponse {
-    private String id;
-    private UUID externalRef;
+    private UUID id;
     private String message;
 }
