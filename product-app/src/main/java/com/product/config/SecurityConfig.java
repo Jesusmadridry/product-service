@@ -1,5 +1,7 @@
 package com.product.config;
 
+import com.common.persist.filter.CapturePrincipalAuthFilter;
+import com.common.persist.filter.ReactiveAuditorProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,6 +23,7 @@ import static com.product.config.RoleConstant.ROLE_COMPANY_OWNER;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final UserProperties userProperties;
+    private final ReactiveAuditorProvider reactiveAuditorProvider;
 
     @Bean
     public MapReactiveUserDetailsService users() {
@@ -45,5 +48,10 @@ public class SecurityConfig {
                 )
                 .httpBasic(httpBasicSpec -> {})
                 .build();
+    }
+
+    @Bean
+    public CapturePrincipalAuthFilter capturePrincipalAuthFilter() {
+        return new CapturePrincipalAuthFilter(reactiveAuditorProvider);
     }
 }

@@ -39,6 +39,7 @@ class ProductControllerTest extends BaseIntegration {
         assertNotNull(response);
         assertEquals(NEW_PRODUCT_MESSAGE, response.getMessage());
         log.info("Response: {}", response);
+        log.info("Product List {}", productRepository.findAll());
 
     }
 

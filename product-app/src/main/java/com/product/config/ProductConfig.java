@@ -1,5 +1,6 @@
 package com.product.config;
 
+import com.common.persist.filter.ReactiveAuditorProvider;
 import com.product.mapper.ProductMapper;
 import com.product.repository.ProductRepository;
 import com.product.service.ProductService;
@@ -17,5 +18,15 @@ public class ProductConfig {
     @Bean
     public ProductService productService(){
         return new ProductService(productRepository, productMapper);
+    }
+
+
+    /**
+    *  This bean will activate the feature of capturing the username once the principal is authenticated.
+     *  It will update the createdBy and LastModifiedBy fields
+    * */
+    @Bean
+    public ReactiveAuditorProvider reactiveAuditorProvider() {
+        return new ReactiveAuditorProvider();
     }
 }
