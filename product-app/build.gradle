@@ -17,7 +17,7 @@ processResources {
 bootJar {
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     manifest {
-        attributes 'Implementation-Title': 'Inventory-Flow-App'
+        attributes 'Implementation-Title': 'Product-Service-App'
         attributes 'Implementation-Version': jarVersion
         attributes 'Implementation-Vendor-Id': appVendor
     }
