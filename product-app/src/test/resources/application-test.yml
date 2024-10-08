@@ -1,0 +1,39 @@
+application:
+  title: Product Service >>> Integration Testing Profile
+  security:
+    users:
+      - name: test_user
+        password: test_user
+        roles:
+          - COMPANY_OWNER
+
+logging:
+  level:
+    com.product: DEBUG
+    reactor.netty.http: DEBUG
+    io.netty.resolver.dns: DEBUG
+    org.springframework.security: TRACE
+
+spring:
+  sql:
+    init:
+      continue-on-error: true
+      mode: always
+  datasource:
+    url: jdbc:h2:mem:company_inventory;INIT=CREATE SCHEMA IF NOT EXISTS COMPANY_INVENTORY;
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+    embedded-database-connection: h2
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        integration.envers.enabled: false
+        show_sql: false
+        format_sql: true
+        hbm2ddl:
+          auto: create
+    defer-datasource-initialization: true

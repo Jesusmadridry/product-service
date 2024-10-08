@@ -1,0 +1,9 @@
+{
+  "code": "PRD001",
+  "categoryType": 1,
+  "name": "Sample Product",
+  "description": "This is a description of the product.",
+  "price": 49.99,
+  "measurement": "kg",
+  "companyOwner": "Company XYZ"
+}

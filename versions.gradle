@@ -30,7 +30,7 @@ ext {
     springDependencyManagementVersion = '1.1.4'
     springOpenAPIVersion = '2.3.0'
 
-    productCommonVersion= '1.0.0-SNAPSHOT'
+    productCommonVersion= '1.0.1'
 
     mapstructVersion = '1.5.5.Final'
     lombokMapstructVersion = '0.2.0'

@@ -21,7 +21,6 @@ allprojects {
 				username = project.findProperty("gpr_user_git")
 				password = project.findProperty("gpr_key_git")
 			}
-
 		}
 	}
 }
